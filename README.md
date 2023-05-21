@@ -5,6 +5,7 @@
 
   ![Go version](https://img.shields.io/badge/go-%3E%3Dv1.18-9cf)
   ![Release](https://img.shields.io/badge/release-1.0.0-green.svg)
+  [![GoDoc](https://godoc.org/github.com/pokeyaro/gloria?status.svg)](https://godoc.org/github.com/pokeyaro/gloria)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 </div>
 
