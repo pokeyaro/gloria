@@ -64,6 +64,7 @@ import "github.com/pokeyaro/gloria"
 
 - [Simple GET Request](#SimpleGet)
 - [More Advanced Request Configuration](#ExtendedConf)
+- [Common CRUD Request Operations](#CrudMethod)
 - [Two Response Modes](#TwoRespMode)
 - [REST Syntactic Sugar](#RestSyntacticSugar)
 - [More API Function Signatures](#MoreAPI)
@@ -255,6 +256,101 @@ func GetCatAPI() {
 }
 ```
 
+### <span id="CrudMethod">Common CRUD Request Operations</span>
+
+Below demonstrates the `CRUD` operations of the `API`, including `Create` `[POST]`, `Read` `[GET]`, `Update` `[PUT]`, and `Delete` `[DELETE]`.
+
+#### Example of [GET] Request
+
+Example code: [api-cat.go](./examples/request_test.go) &nbsp; | &nbsp; Recommended 🌟🌟🌟🌟🌟
+
+```go
+type FavouritesList struct {
+    Id        int       `json:"id"`
+    UserId    string    `json:"user_id"`
+    ImageId   string    `json:"image_id"`
+    SubId     string    `json:"sub_id"`
+    CreatedAt time.Time `json:"created_at"`
+    Image     struct {
+        Id  string `json:"id,omitempty"`
+        Url string `json:"url,omitempty"`
+    } `json:"image"`
+}
+
+// GET
+func main() {
+    r := gloria.NewHTTP[[]FavouritesList]()
+
+    r.SetRequest(gloria.MethodGet, "https://api.thecatapi.com/v1/favourites").SetHeaders(gloria.H{
+        "x-api-key":    "your-api-key",
+        "Content-Type": "application/json",
+    }).Send().Unwrap()
+
+    for _, v := range r.Data() {
+        fmt.Println(v)
+    }
+}
+```
+
+#### Example of [POST] Request
+
+Example code: [api-cat.go](./examples/request_test.go) &nbsp; | &nbsp; Recommended 🌟🌟🌟🌟🌟
+
+```go
+type FavouriteImgResp struct {
+    Message string `json:"message"`
+    Id      int    `json:"id"`
+}
+
+type FavouriteImgBody struct {
+    ImageId string `json:"image_id"`
+    SubId   string `json:"sub_id"`
+}
+
+// POST
+func main() {
+    data := FavouriteImgBody{
+        ImageId: "12345",
+        SubId:   "my-key-12345",
+    }
+
+    r := gloria.NewHTTP[FavouriteImgResp]()
+
+    r.SetRequest(gloria.MethodPost, "https://api.thecatapi.com/v1/favourites").SetHeaders(gloria.H{
+        "x-api-key":    "your-api-key",
+        "Content-Type": "application/json",
+    }).SetPayload(&data).Send().Unwrap()
+
+    fmt.Println("post_id:", r.Data().Id)
+}
+```
+
+#### Example of [PUT] Request
+
+No example available. Please refer to the `POST` method for reference.
+
+#### Example of [DELETE] Request
+
+Example code: [api-cat.go](./examples/request_test.go) &nbsp; | &nbsp; Recommended 🌟🌟🌟🌟🌟
+
+```go
+type Result struct {
+    Message string `json:"message"`
+}
+
+// DELETE
+func main() {
+    r := gloria.NewHTTP[Result]()
+
+    r.SetRequest(gloria.MethodDelete, "https://api.thecatapi.com/v1/favourites/:id", "232338734").SetHeaders(gloria.H{
+        "x-api-key":    "your-api-key",
+        "Content-Type": "application/json",
+    }).Send().Unwrap()
+
+    fmt.Println("message:", r.Data().Message)
+}
+```
+
 ### <span id="TwoRespMode">Two Response Modes</span>
 
 There are two different response modes: `HTTP` mode and `REST` mode. Let's explain the differences between them!
@@ -389,7 +485,7 @@ func (c *Client[T]) SetEndpoint(endpoint string) *Client[T]
 
 func (c *Client[T]) SetURL(scheme, host, baseUri, endpoint string) *Client[T]
 
-func (c *Client[T]) SetRequest(method, path string) *Client[T]
+func (c *Client[T]) SetRequest(method, path string, pathParams ...string) *Client[T]
 
 func (c *Client[T]) SetQueryParam(key, value string) *Client[T]
 func (c *Client[T]) SetQueryParams(params H) *Client[T]

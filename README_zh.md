@@ -61,6 +61,7 @@ import "github.com/pokeyaro/gloria"
 
 - [简单的 GET 请求](#SimpleGet)
 - [更丰富的请求配置](#ExtendedConf)
+- [常用 CRUD 请求操作](#CrudMethod)
 - [两种响应模式](#TwoRespMode)
 - [REST 语法糖](#RestSyntacticSugar)
 - [更多 API 函数签名](#MoreAPI)
@@ -250,6 +251,101 @@ func GetCatAPI() {
 }
 ```
 
+### <span id="CrudMethod">常用 CRUD 请求操作</span>
+
+下面演示 `API` 的 `CRUD` 操作，分别为 `Create` `[POST]`、 `Read` `[GET]`、`Update` `[PUT]`、`Delete` `[DELETE]`
+
+#### [GET] 请求示例
+
+示例代码：[api-cat.go](./examples/request_test.go) &nbsp; | &nbsp; 推荐 🌟🌟🌟🌟🌟
+
+```go
+type FavouritesList struct {
+    Id        int       `json:"id"`
+    UserId    string    `json:"user_id"`
+    ImageId   string    `json:"image_id"`
+    SubId     string    `json:"sub_id"`
+    CreatedAt time.Time `json:"created_at"`
+    Image     struct {
+        Id  string `json:"id,omitempty"`
+        Url string `json:"url,omitempty"`
+    } `json:"image"`
+}
+
+// GET
+func main() {
+    r := gloria.NewHTTP[[]FavouritesList]()
+
+    r.SetRequest(gloria.MethodGet, "https://api.thecatapi.com/v1/favourites").SetHeaders(gloria.H{
+        "x-api-key":    "your-api-key",
+        "Content-Type": "application/json",
+    }).Send().Unwrap()
+
+    for _, v := range r.Data() {
+        fmt.Println(v)
+    }
+}
+```
+
+#### [POST] 请求示例
+
+示例代码：[api-cat.go](./examples/request_test.go) &nbsp; | &nbsp; 推荐 🌟🌟🌟🌟🌟
+
+```go
+type FavouriteImgResp struct {
+    Message string `json:"message"`
+    Id      int    `json:"id"`
+}
+
+type FavouriteImgBody struct {
+    ImageId string `json:"image_id"`
+    SubId   string `json:"sub_id"`
+}
+
+// POST
+func main() {
+    data := FavouriteImgBody{
+        ImageId: "12345",
+        SubId:   "my-key-123445",
+    }
+
+    r := gloria.NewHTTP[FavouriteImgResp]()
+
+    r.SetRequest(gloria.MethodPost, "https://api.thecatapi.com/v1/favourites").SetHeaders(gloria.H{
+        "x-api-key":    "your-api-key",
+        "Content-Type": "application/json",
+    }).SetPayload(&data).Send().Unwrap()
+
+    fmt.Println("post_id:", r.Data().Id)
+}
+```
+
+#### [PUT] 请求示例
+
+暂无示例，可参考 `POST` 方法。
+
+#### [DELETE] 请求示例
+
+示例代码：[api-cat.go](./examples/request_test.go) &nbsp; | &nbsp; 推荐 🌟🌟🌟🌟🌟
+
+```go
+type Result struct {
+    Message string `json:"message"`
+}
+
+// DELETE
+func main() {
+    r := gloria.NewHTTP[Result]()
+
+    r.SetRequest(gloria.MethodDelete, "https://api.thecatapi.com/v1/favourites/:id", "232338734").SetHeaders(gloria.H{
+        "x-api-key":    "your-api-key",
+        "Content-Type": "application/json",
+    }).Send().Unwrap()
+
+    fmt.Println("message:", r.Data().Message)
+}
+```
+
 ### <span id="TwoRespMode">两种响应模式</span>
 
 拥有两种不同的响应模式：`HTTP` 模式和 `REST` 模式，下面我们来分别解释它们的区别！
@@ -377,7 +473,7 @@ func (c *Client[T]) SetEndpoint(endpoint string) *Client[T]
 
 func (c *Client[T]) SetURL(scheme, host, baseUri, endpoint string) *Client[T]
 
-func (c *Client[T]) SetRequest(method, path string) *Client[T]
+func (c *Client[T]) SetRequest(method, path string, pathParams ...string) *Client[T]
 
 func (c *Client[T]) SetQueryParam(key, value string) *Client[T]
 func (c *Client[T]) SetQueryParams(params H) *Client[T]
