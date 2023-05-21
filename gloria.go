@@ -425,9 +425,50 @@ func (c *Client[T]) SetEndpoint(endpoint string) *Client[T] {
 	return c
 }
 
-func (c *Client[T]) SetRequest(method, path string) *Client[T] {
+// SetRequest sets the request method and path for the client.
+// It also supports dynamic routing by replacing path parameters with actual values.
+// The method parameter specifies the HTTP method (e.g., "GET", "POST", "PUT", etc.).
+// The path parameter specifies the request path with optional path parameters.
+// The pathParams parameter is an optional variadic parameter that contains the values
+// to replace the path parameters in the request path.
+// It returns the modified client instance.
+//
+// Dynamic Routing:
+// The SetRequest function supports dynamic routing by allowing you to replace path
+// parameters in the request path with actual values. If there is only one path
+// parameter, you can use the placeholder ":id" in the path. If there are two path
+// parameters, the first one should be replaced with ":id" and the second one with ":sid".
+//
+// Example:
+//
+//	client := NewClient()
+//	client.SetRequest("GET", "/users/:id", "123")
+//	client.SetRequest("POST", "/users/:id/:sid", "123", "456")
+//
+// In the above example, the first SetRequest call sets the request method to "GET" and
+// the request path to "/users/123". The second SetRequest call sets the request method
+// to "POST" and the request path to "/users/123/456".
+//
+// Note:
+// The SetRequest function currently supports a maximum of two dynamic routing parameters.
+// If more than two path parameters are provided, a panic will occur.
+func (c *Client[T]) SetRequest(method, path string, pathParams ...string) *Client[T] {
+	// Parse Dynamic Routing
+	var tempPath string
+	switch len(pathParams) {
+	case 0:
+		tempPath = path
+	case 1:
+		tempPath = strings.Replace(path, ":id", pathParams[0], 1)
+	case 2:
+		tempPath = strings.Replace(path, ":id", pathParams[0], 1)
+		tempPath = strings.Replace(tempPath, ":sid", pathParams[1], 1)
+	case 3:
+		panic("There are too many dynamic routing parameters, which are not supported for now!")
+	}
+
 	// Parse the URL
-	parseUrl := urlSegments(path)
+	parseUrl := urlSegments(tempPath)
 
 	// Set the request method
 	c.SetMethod(method)
