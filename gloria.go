@@ -889,8 +889,7 @@ func (c *Client[T]) createRequest() *Client[T] {
 //
 // See createRequest.
 func (c *Client[T]) parseFullURLPath() {
-	var urlPath, queryParams string
-	querySlice := make([]string, 0, len(c.params))
+	var urlPath string
 
 	// Set the url path part
 	if isEmptyString(c.Meta.Url) {
@@ -903,20 +902,24 @@ func (c *Client[T]) parseFullURLPath() {
 	}
 
 	// Set request parameters section
-	if len(c.params) > 0 {
+	switch len(c.params) {
+	case 0:
+		c.Meta.Url = urlPath
+	default:
+		// Use url.Values to store query parameters
+		queryParams := url.Values{}
 		for k, v := range c.params {
-			querySlice = append(querySlice, fmt.Sprintf("%s=%s", k, v))
+			queryParams.Add(k, v)
 		}
-		queryParams = "?" + strings.Join(querySlice, "&")
+
+		// Encode query parameters as URL strings
+		encodedQueryParams := queryParams.Encode()
+
+		// Generate the full request path
+		fullURL := fmt.Sprintf("%s?%s", urlPath, encodedQueryParams)
+
+		c.Meta.Url = fullURL
 	}
-
-	// URL Encode Query Parameters
-	encodedQueryParam := url.QueryEscape(queryParams)
-
-	// Generate the full request path
-	fullURL := fmt.Sprintf("%s%s", urlPath, encodedQueryParam)
-
-	c.Meta.Url = fullURL
 }
 
 // httpClientDefaultConf creates and returns a default HTTP client with the specified configurations.
