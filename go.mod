@@ -1,4 +1,4 @@
-module gloria
+module github.com/pokeyaro/gloria
 
 go 1.20
 
