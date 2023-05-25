@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"gloria"
+	"github.com/pokeyaro/gloria"
 )
 
 /*

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"gloria"
+	"github.com/pokeyaro/gloria"
 )
 
 /*

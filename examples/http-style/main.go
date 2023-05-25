@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"gloria"
+	"github.com/pokeyaro/gloria"
 )
 
 /*
