@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -909,8 +910,13 @@ func (c *Client[T]) parseFullURLPath() {
 		queryParams = "?" + strings.Join(querySlice, "&")
 	}
 
-	// Integrate the full request path
-	c.Meta.Url = urlPath + queryParams
+	// URL Encode Query Parameters
+	encodedQueryParam := url.QueryEscape(queryParams)
+
+	// Generate the full request path
+	fullURL := fmt.Sprintf("%s%s", urlPath, encodedQueryParam)
+
+	c.Meta.Url = fullURL
 }
 
 // httpClientDefaultConf creates and returns a default HTTP client with the specified configurations.
