@@ -91,7 +91,7 @@ type HttpBin struct {
     Headers struct {
         Accept                  string `json:"Accept"`
         AcceptEncoding          string `json:"Accept-Encoding"`
-		AcceptLanguage          string `json:"Accept-Language"`
+        AcceptLanguage          string `json:"Accept-Language"`
         Host                    string `json:"Host"`
         UpgradeInsecureRequests string `json:"Upgrade-Insecure-Requests"`
         UserAgent               string `json:"User-Agent"`
@@ -178,7 +178,7 @@ type ImageSearch struct {
 
 // 构建一个更丰富的请求
 func GetCatAPI() {
-	// 这个接口返回的是结构体切片
+    // 这个接口返回的是结构体切片
     r := gloria.New[[]ImageSearch]()
 
     r.Optional(
@@ -190,6 +190,7 @@ func GetCatAPI() {
         gloria.Lambda[[]ImageSearch](func(c *gloria.Client[[]ImageSearch]) {
             c.Config.SkipTLS = true
             c.Config.Timeout = gloria.TimeoutMedium
+            c.Config.FilterSlash = true // 过滤 URL 尾部的斜杠（慎用）
             c.Config.IsRestMode = false // 如果非标准 RESTful 响应接口，使用原生 HTTP 模式，即选择 false
         }),
     ).
@@ -198,7 +199,7 @@ func GetCatAPI() {
         // 设置请求路径，该方法需分段编写
         SetURL(gloria.ProtocolHttps, "api.thecatapi.com", "/v1", "/images/search").
         // 设置多个请求参数
-		SetQueryParams(gloria.H{
+        SetQueryParams(gloria.H{
             "size":       "med",
             "mime_types": []string{"png", "gif"},
             "format":     "json",
@@ -231,7 +232,7 @@ type ImageSearch struct {
 
 // 构建一个更丰富的请求
 func GetCatAPI() {
-	// 注意 Default 方法模式是 REST 模式，这里需要使用 ToggleMode 进行切换！
+    // 注意 Default 方法模式是 REST 模式，这里需要使用 ToggleMode 进行切换！
     r := gloria.Default[[]ImageSearch]().ToggleMode()
 
     r.

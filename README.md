@@ -94,7 +94,7 @@ type HttpBin struct {
     Headers struct {
         Accept                  string `json:"Accept"`
         AcceptEncoding          string `json:"Accept-Encoding"`
-		AcceptLanguage          string `json:"Accept-Language"`
+        AcceptLanguage          string `json:"Accept-Language"`
         Host                    string `json:"Host"`
         UpgradeInsecureRequests string `json:"Upgrade-Insecure-Requests"`
         UserAgent               string `json:"User-Agent"`
@@ -181,7 +181,7 @@ type ImageSearch struct {
 
 // Build a more comprehensive request.
 func GetCatAPI() {
-	// This API returns a slice of struct.
+    // This API returns a slice of struct.
     r := gloria.New[[]ImageSearch]()
 
     r.Optional(
@@ -193,6 +193,7 @@ func GetCatAPI() {
         gloria.Lambda[[]ImageSearch](func(c *gloria.Client[[]ImageSearch]) {
             c.Config.SkipTLS = true
             c.Config.Timeout = gloria.TimeoutMedium
+            c.Config.FilterSlash = true // Filter trailing slashes in URLs (use with caution).
             c.Config.IsRestMode = false // If it's a non-standard RESTful response interface, use native HTTP mode by selecting false.
         }),
     ).
@@ -201,7 +202,7 @@ func GetCatAPI() {
         // Set the request path. This method requires specifying the path in segments.
         SetURL(gloria.ProtocolHttps, "api.thecatapi.com", "/v1", "/images/search").
         // Set multiple request parameters.
-		SetQueryParams(gloria.H{
+        SetQueryParams(gloria.H{
             "size":       "med",
             "mime_types": []string{"png", "gif"},
             "format":     "json",
@@ -236,7 +237,7 @@ type ImageSearch struct {
 
 // Build a more sophisticated request.
 func GetCatAPI() {
-	// Note that the Default() method operates in REST mode. To switch to another mode, use ToggleMode().
+    // Note that the Default() method operates in REST mode. To switch to another mode, use ToggleMode().
     r := gloria.Default[[]ImageSearch]().ToggleMode()
 
     r.
