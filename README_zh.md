@@ -454,10 +454,13 @@ func Lambda[T any](f func(*Client[T])) ClientFunc[T]
 
 func WithTimeout[T any](timeout time.Duration) ClientFunc[T]
 func WithSkipTLS[T any](skipTLS bool) ClientFunc[T]
+func WithFilterSlash[T any](filterSlash bool) ClientFunc[T]
 func WithIsDebug[T any](isDebug bool) ClientFunc[T]
 func WithUseLogger[T any](enabled bool) ClientFunc[T]
+func WithModifySuccessCode[T any](code int) ClientFunc[T]
 
 func (c *Client[T]) ToggleMode() *Client[T]                     // 切换到另外一种模式。
+func (c *Client[T]) FilterUrlSlash() *Client[T]                 // 将自动过滤掉URL尾部的斜杠。
 func (c *Client[T]) DefineOkCode(code int) *Client[T]           // 设置自定义成功返回值，作为用于自动判断业务失败的依据。
 ```
 

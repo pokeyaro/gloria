@@ -466,10 +466,13 @@ func Lambda[T any](f func(*Client[T])) ClientFunc[T]
 
 func WithTimeout[T any](timeout time.Duration) ClientFunc[T]
 func WithSkipTLS[T any](skipTLS bool) ClientFunc[T]
+func WithFilterSlash[T any](filterSlash bool) ClientFunc[T]
 func WithIsDebug[T any](isDebug bool) ClientFunc[T]
 func WithUseLogger[T any](enabled bool) ClientFunc[T]
+func WithModifySuccessCode[T any](code int) ClientFunc[T]
 
 func (c *Client[T]) ToggleMode() *Client[T]                     // Toggle to the other mode.
+func (c *Client[T]) FilterUrlSlash() *Client[T]                 // Trailing slashes in URLs will be automatically filtered out.
 func (c *Client[T]) DefineOkCode(code int) *Client[T]           // Set a custom success value to be used as a basis for automatically determining business failures.
 ```
 

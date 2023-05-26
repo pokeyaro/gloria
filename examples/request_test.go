@@ -36,12 +36,13 @@ func TestRequest_New(t *testing.T) {
 			// More settings
 			c.Config.SkipTLS = true
 			c.Config.Timeout = gloria.TimeoutMedium
+			c.Config.FilterSlash = true
 			c.Config.IsRestMode = false
 
 		}),
 	).
 		SetMethod(gloria.MethodGet).
-		SetURL(gloria.ProtocolHttps, "api.thecatapi.com", "/v1", "/images/search").
+		SetURL(gloria.ProtocolHttps, "api.thecatapi.com", "/v1", "/images/search/").
 		SetQueryParams(gloria.H{
 			"size":       "med",
 			"mime_types": []string{"png", "gif"},

@@ -232,6 +232,7 @@ type Meta struct {
 type Config struct {
 	Timeout       time.Duration
 	SkipTLS       bool
+	FilterSlash   bool
 	IsDebug       bool
 	Logger        *log.Logger
 	IsRestMode    bool

@@ -32,6 +32,7 @@ func New[T any]() *Client[T] {
 		},
 		Meta: &Meta{},
 		Config: &Config{
+			FilterSlash:   false,
 			IsDebug:       false,
 			Logger:        nil,
 			IsRestMode:    true,
@@ -186,6 +187,17 @@ func WithSkipTLS[T any](skipTLS bool) ClientFunc[T] {
 	}
 }
 
+// WithFilterSlash is a ClientFunc[T] function that sets the FilterSlash configuration of a client instance.
+// It takes a boolean parameter filterSlash to enable or disable filtering of trailing slashes in URLs.
+// When filterSlash is set to true, the client will remove any trailing slashes from the URLs it sends requests to.
+// This can be useful in cases where the server treats URLs with and without trailing slashes differently.
+// Note: that filtering slashes in URLs may affect the behavior of your requests, so use it carefully.
+func WithFilterSlash[T any](filterSlash bool) ClientFunc[T] {
+	return func(c *Client[T]) {
+		c.Config.FilterSlash = filterSlash
+	}
+}
+
 // WithIsDebug is a ClientFunc[T] function that sets the IsDebug configuration of a client instance.
 // It takes a boolean value isDebug.
 func WithIsDebug[T any](isDebug bool) ClientFunc[T] {
@@ -235,6 +247,13 @@ func WithModifySuccessCode[T any](code int) ClientFunc[T] {
 
 func (c *Client[T]) ToggleMode() *Client[T] {
 	c.Config.IsRestMode = !c.Config.IsRestMode
+
+	return c
+}
+
+// Note: The FilterUrlSlash method needs to be called before the SetURL or SetRequest method.
+func (c *Client[T]) FilterUrlSlash() *Client[T] {
+	c.Config.FilterSlash = true
 
 	return c
 }
@@ -419,8 +438,13 @@ func (c *Client[T]) SetEndpoint(endpoint string) *Client[T] {
 		}
 		c.urls.endpoint = RootURL
 	} else {
-		// Note: that this must be written in the else code block
-		c.urls.endpoint = strings.TrimRight(endpoint, signSlash)
+		if c.Config.FilterSlash {
+			// Turn on the option to automatically mask the trailing /
+			c.urls.endpoint = strings.TrimRight(endpoint, signSlash)
+		} else {
+			// keep original url
+			c.urls.endpoint = endpoint
+		}
 	}
 
 	return c
