@@ -34,6 +34,7 @@ We pay tribute to all those who strive to build internet applications and hope t
 - 🪶 Simple, user-friendly, and versatile `API` design
 - 👏 Unified `RESTful-style` response implementation using generics
 - 🚀 Support for injecting multiple request and response interceptors
+- 🎁 Support for registering third-party `JSON` parsing libraries
 - 📝 Detailed colored logging and error tracing capabilities
 - 💃🏼 Elegant error handling with `Unwrap` (`Rust-style`)
 - 🧭 Request invocation time and `QPS` estimation functionality
@@ -69,6 +70,7 @@ import "github.com/pokeyaro/gloria"
 - [REST Syntactic Sugar](#RestSyntacticSugar)
 - [More API Function Signatures](#MoreAPI)
 - [Injecting Interceptors for HTTP](#HttpInterceptor)
+- [Register a high-performance JSON parsing library](#RegisterJsonLib)
 - [Some Coding Suggestions](#CodeSuggestions)
 
 
@@ -467,14 +469,13 @@ func Lambda[T any](f func(*Client[T])) ClientFunc[T]
 
 func WithTimeout[T any](timeout time.Duration) ClientFunc[T]
 func WithSkipTLS[T any](skipTLS bool) ClientFunc[T]
-func WithFilterSlash[T any](filterSlash bool) ClientFunc[T]
 func WithIsDebug[T any](isDebug bool) ClientFunc[T]
 func WithUseLogger[T any](enabled bool) ClientFunc[T]
-func WithModifySuccessCode[T any](code int) ClientFunc[T]
 
 func (c *Client[T]) ToggleMode() *Client[T]                     // Toggle to the other mode.
 func (c *Client[T]) FilterUrlSlash() *Client[T]                 // Trailing slashes in URLs will be automatically filtered out.
 func (c *Client[T]) DefineOkCode(code int) *Client[T]           // Set a custom success value to be used as a basis for automatically determining business failures.
+func (c *Client[T]) RegisterJsonLib(lib JSONLibrary) *Client[T] // Register JSON parsing library, and you can choose popular third-party libraries independently and dynamically.
 ```
 
 #### Request Configuration Related
@@ -625,6 +626,40 @@ Sending request...
 3. I am a response hook 🪝🪝🪝
 4. I am a response hook 🍌🍌🍌
 ```
+
+### <span id="RegisterJsonLib">Register a high-performance JSON parsing library</span>
+
+#### Sonic library
+
+For example, inject [bytedance/sonic](https://github.com/bytedance/sonic) an blazingly fast 
+`JSON` serializing & deserializing library.
+
+```go
+import "github.com/bytedance/sonic"
+
+// bytedance/sonic interface implementation
+type SonicLibrary struct{}
+
+func (l SonicLibrary) Marshal(v interface{}) ([]byte, error) {
+    return sonic.Marshal(v)
+}
+
+func (l SonicLibrary) Unmarshal(data []byte, v interface{}) error {
+    return sonic.Unmarshal(data, v)
+}
+
+// how to use?
+client := New[any]()
+
+client.RegisterJsonLib(SonicLibrary{})
+
+// continue...
+```
+
+#### Other library
+
+Of course, you can also use `jsoniter`, `easyjson`, `go-json` (with the `Default()` function), 
+`std` (with the native `New()` function), or any other library you prefer.
 
 ### <span id="CodeSuggestions">Some Coding Suggestions</span>
 

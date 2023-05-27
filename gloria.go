@@ -14,12 +14,10 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/goccy/go-json"
 )
 
 /*
-	Constructor to create a client instance
+Constructor to create a client instance
 */
 
 // New function returns an empty template initialization (for rest mode).
@@ -37,6 +35,7 @@ func New[T any]() *Client[T] {
 			Logger:        nil,
 			IsRestMode:    true,
 			DefaultOkCode: OkCode,
+			JSONLoader:    NativeJSONLibrary{},
 		},
 		Exception:     &Exception{},
 		Result:        &RESTFulResp[T]{},
@@ -85,6 +84,7 @@ func Default[T any]() *Client[T] {
 			c.Config.Timeout = TimeoutMedium
 			c.Config.IsRestMode = true
 			c.Config.DefaultOkCode = OkCode
+			c.Config.JSONLoader = GoJSONLibrary{}
 		}),
 	)
 
@@ -187,17 +187,6 @@ func WithSkipTLS[T any](skipTLS bool) ClientFunc[T] {
 	}
 }
 
-// WithFilterSlash is a ClientFunc[T] function that sets the FilterSlash configuration of a client instance.
-// It takes a boolean parameter filterSlash to enable or disable filtering of trailing slashes in URLs.
-// When filterSlash is set to true, the client will remove any trailing slashes from the URLs it sends requests to.
-// This can be useful in cases where the server treats URLs with and without trailing slashes differently.
-// Note: that filtering slashes in URLs may affect the behavior of your requests, so use it carefully.
-func WithFilterSlash[T any](filterSlash bool) ClientFunc[T] {
-	return func(c *Client[T]) {
-		c.Config.FilterSlash = filterSlash
-	}
-}
-
 // WithIsDebug is a ClientFunc[T] function that sets the IsDebug configuration of a client instance.
 // It takes a boolean value isDebug.
 func WithIsDebug[T any](isDebug bool) ClientFunc[T] {
@@ -221,6 +210,27 @@ func WithUseLogger[T any](enabled bool) ClientFunc[T] {
 			logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 			c.Config.Logger = logger
 		}
+	}
+}
+
+// WithRegisterJsonLibrary is a ClientFunc[T] function that registers the json library for a
+// client instance.
+// You can choose the popular json parsing library independently.
+// Note: Please implement the JSONLibrary interface definition yourself.
+func WithRegisterJsonLibrary[T any](lib JSONLibrary) ClientFunc[T] {
+	return func(c *Client[T]) {
+		c.Config.JSONLoader = lib
+	}
+}
+
+// Deprecated: WithFilterSlash is a ClientFunc[T] function that sets the FilterSlash configuration of a client instance.
+// It takes a boolean parameter filterSlash to enable or disable filtering of trailing slashes in URLs.
+// When filterSlash is set to true, the client will remove any trailing slashes from the URLs it sends requests to.
+// This can be useful in cases where the server treats URLs with and without trailing slashes differently.
+// Note: that filtering slashes in URLs may affect the behavior of your requests, so use it carefully.
+func WithFilterSlash[T any](filterSlash bool) ClientFunc[T] {
+	return func(c *Client[T]) {
+		c.Config.FilterSlash = filterSlash
 	}
 }
 
@@ -260,6 +270,13 @@ func (c *Client[T]) FilterUrlSlash() *Client[T] {
 
 func (c *Client[T]) DefineOkCode(code int) *Client[T] {
 	c.Config.DefaultOkCode = code
+
+	return c
+}
+
+// Note: Please implement the JSONLibrary interface definition yourself.
+func (c *Client[T]) RegisterJsonLib(lib JSONLibrary) *Client[T] {
+	c.Config.JSONLoader = lib
 
 	return c
 }
@@ -827,7 +844,7 @@ func (c *Client[T]) createRequest() *Client[T] {
 	} else {
 		// such as POST/PUT...
 		var byteData []byte
-		byteData, err = json.Marshal(c.payload)
+		byteData, err = c.Config.JSONLoader.Marshal(c.payload)
 		if err != nil {
 			c.Exception = &Exception{
 				CodeLocation:   fileLocation(1),

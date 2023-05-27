@@ -13,8 +13,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/goccy/go-json"
 )
 
 const (
@@ -237,6 +235,7 @@ type Config struct {
 	Logger        *log.Logger
 	IsRestMode    bool
 	DefaultOkCode int
+	JSONLoader    JSONLibrary
 }
 
 type Exception struct {
@@ -352,9 +351,9 @@ func (c *Client[T]) Send() *Client[T] {
 
 	var errJson error
 	if c.Config.IsRestMode {
-		errJson = json.Unmarshal(c.Context.Response.bs, &c.Result)
+		errJson = c.Config.JSONLoader.Unmarshal(c.Context.Response.bs, &c.Result)
 	} else {
-		errJson = json.Unmarshal(c.Context.Response.bs, &c.Result.Data)
+		errJson = c.Config.JSONLoader.Unmarshal(c.Context.Response.bs, &c.Result.Data)
 	}
 	if errJson != nil {
 		c.Exception = &Exception{
@@ -491,7 +490,7 @@ func (c *Client[T]) ToJson(v any) error {
 	if c.Context.Response.length == 0 {
 		return errors.New("pesponse body length is 0")
 	}
-	if err := json.Unmarshal(c.Context.Response.bs, v); err != nil {
+	if err := c.Config.JSONLoader.Unmarshal(c.Context.Response.bs, v); err != nil {
 		return err
 	}
 	return nil

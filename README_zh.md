@@ -31,6 +31,7 @@
 - 🪶 简洁、易用、丰富多样的 `API` 设计
 - 👏 泛型实现统一 `RESTful` 风格响应
 - 🚀 支持多个请求、响应拦截器的注入
+- 🎁 支持注册第三方 `JSON` 解析库
 - 📝 详细的彩印日志以及错误追踪定位功能
 - 💃🏼 优雅的 `Unwrap` 错误处理（`Rust` 风格）
 - 🧭 请求调用时间及 `QPS` 预估功能
@@ -66,6 +67,7 @@ import "github.com/pokeyaro/gloria"
 - [REST 语法糖](#RestSyntacticSugar)
 - [更多 API 函数签名](#MoreAPI)
 - [为 HTTP 注入拦截器](#HttpInterceptor)
+- [注册高性能 JSON 解析库](#RegisterJsonLib)
 - [一些代码编写建议](#CodeSuggestions)
 
 
@@ -455,14 +457,13 @@ func Lambda[T any](f func(*Client[T])) ClientFunc[T]
 
 func WithTimeout[T any](timeout time.Duration) ClientFunc[T]
 func WithSkipTLS[T any](skipTLS bool) ClientFunc[T]
-func WithFilterSlash[T any](filterSlash bool) ClientFunc[T]
 func WithIsDebug[T any](isDebug bool) ClientFunc[T]
 func WithUseLogger[T any](enabled bool) ClientFunc[T]
-func WithModifySuccessCode[T any](code int) ClientFunc[T]
 
 func (c *Client[T]) ToggleMode() *Client[T]                     // 切换到另外一种模式。
 func (c *Client[T]) FilterUrlSlash() *Client[T]                 // 将自动过滤掉URL尾部的斜杠。
 func (c *Client[T]) DefineOkCode(code int) *Client[T]           // 设置自定义成功返回值，作为用于自动判断业务失败的依据。
+func (c *Client[T]) RegisterJsonLib(lib JSONLibrary) *Client[T] // 注册JSON解析库。
 ```
 
 #### 请求设置
@@ -611,6 +612,38 @@ client.Send().Unwrap()
 3. 我是一只响应 🪝🪝🪝
 4. 我是一只响应 🍌🍌🍌
 ```
+
+### <span id="RegisterJsonLib">注册高性能 JSON 解析库</span>
+
+#### Sonic库
+
+比如，注入 [bytedance/sonic](https://github.com/bytedance/sonic) 一个速度奇快的 `JSON` 序列化/反序列化库。
+
+```go
+import "github.com/bytedance/sonic"
+
+// bytedance/sonic 接口实现
+type SonicLibrary struct{}
+
+func (l SonicLibrary) Marshal(v interface{}) ([]byte, error) {
+    return sonic.Marshal(v)
+}
+
+func (l SonicLibrary) Unmarshal(data []byte, v interface{}) error {
+    return sonic.Unmarshal(data, v)
+}
+
+// 如何使用？
+client := New[any]()
+
+client.RegisterJsonLib(SonicLibrary{})
+
+// 进行后续操作...
+```
+
+#### 其它
+
+当然，你还可以使用 `jsoniter`、`easyjson`、`go-json`（`Default()`函数的选择）、`std`（原生`New()`函数的选择）等等，随你喜欢。
 
 ### <span id="CodeSuggestions">一些代码编写建议</span> 
 
