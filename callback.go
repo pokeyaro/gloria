@@ -8,7 +8,6 @@ package gloria
 	A then-catch-finally statement callback style like javascript axios library
 */
 
-// type CallbackOk[T any] func(data *RESTFulResp[T])
 type CallbackOk[T any] func(data T)
 type CallbackErr func(e *Exception)
 type CallbackExtra[T any] func(c *Client[T])
