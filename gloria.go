@@ -285,8 +285,8 @@ func (c *Client[T]) RegisterJsonLib(lib JSONLibrary) *Client[T] {
 	Exposed chain methods with Getter attribute for the Client struct
 */
 
-// GetQuery returns the value of the specified query parameter from the client instance.
-func (c *Client[T]) GetQuery(q string) string {
+// Query returns the value of the specified query parameter from the client instance.
+func (c *Client[T]) Query(q string) string {
 	qs := c.params
 	if isEmpty(qs) {
 		return ""
@@ -295,8 +295,8 @@ func (c *Client[T]) GetQuery(q string) string {
 	return qs[q]
 }
 
-// GetQueryParams returns the query parameters as a SMap from the client instance.
-func (c *Client[T]) GetQueryParams() SMap {
+// QueryParams returns the query parameters as a SMap from the client instance.
+func (c *Client[T]) QueryParams() SMap {
 	qs := c.params
 	if isEmpty(qs) {
 		return nil
@@ -305,15 +305,15 @@ func (c *Client[T]) GetQueryParams() SMap {
 	return qs
 }
 
-// GetHeader returns the value of the specified header key from the client's request context.
-func (c *Client[T]) GetHeader(key string) string {
+// Header returns the value of the specified header key from the client's request context.
+func (c *Client[T]) Header(key string) string {
 	hdr := c.Context.Request.Header.Get(key)
 
 	return hdr
 }
 
-// GetHeaders returns the headers as a http.Header from the client's request context.
-func (c *Client[T]) GetHeaders() http.Header {
+// Headers returns the headers as a http.Header from the client's request context.
+func (c *Client[T]) Headers() http.Header {
 	headers := c.Context.Request.Header.Clone()
 	if isEmpty(headers) {
 		return nil
@@ -322,15 +322,15 @@ func (c *Client[T]) GetHeaders() http.Header {
 	return headers
 }
 
-// GetCookie returns the cookie with the specified name from the client's request context.
+// Cookie returns the cookie with the specified name from the client's request context.
 // If the cookie is found, it returns the cookie object.
 // If the cookie is not found, it returns an error.
-func (c *Client[T]) GetCookie(name string) (*http.Cookie, error) {
+func (c *Client[T]) Cookie(name string) (*http.Cookie, error) {
 	return c.Context.Request.Cookie(name)
 }
 
-// GetCookies returns the cookies as a []*http.Cookie from the client's request context.
-func (c *Client[T]) GetCookies() []*http.Cookie {
+// Cookies returns the cookies as a []*http.Cookie from the client's request context.
+func (c *Client[T]) Cookies() []*http.Cookie {
 	cookies := c.Context.Request.Cookies()
 	if isEmpty(cookies) {
 		return nil

@@ -541,17 +541,17 @@ func (c *Client[T]) Finally(cb CallbackExtra[T], printLog ...bool)
 func (c *Client[T]) Data() T
 ```
 
-#### Retrieving settings Related
+#### Retrieving settings Related (Getters)
 
 ```textmate
-func (c *Client[T]) GetQuery(q string) string
-func (c *Client[T]) GetQueryParams() SMap
+func (c *Client[T]) Query(q string) string
+func (c *Client[T]) QueryParams() SMap
 
-func (c *Client[T]) GetHeader(key string) string
-func (c *Client[T]) GetHeaders() http.Header
+func (c *Client[T]) Header(key string) string
+func (c *Client[T]) Headers() http.Header
 
-func (c *Client[T]) GetCookie(name string) (*http.Cookie, error)
-func (c *Client[T]) GetCookies() []*http.Cookie
+func (c *Client[T]) Cookie(name string) (*http.Cookie, error)
+func (c *Client[T]) Cookies() []*http.Cookie
 ```
 
 #### Print information Related
