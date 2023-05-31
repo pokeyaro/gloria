@@ -47,8 +47,10 @@
 
 ### 安装
 
+首先，使用 go get 安装最新版本的库。
+
 ```bash
-go get -u github.com/pokeyaro/gloria
+go get -u github.com/pokeyaro/gloria@latest
 ```
 
 ### 导入

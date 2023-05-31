@@ -50,8 +50,10 @@ Supported versions: Requires the `Go` `T` generics feature and a minimum interpr
 
 ### Installation
 
+Using Gloria is easy. First, use go get to install the latest version of the library.
+
 ```bash
-go get -u github.com/pokeyaro/gloria
+go get -u github.com/pokeyaro/gloria@latest
 ```
 
 ### Import
