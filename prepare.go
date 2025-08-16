@@ -1,13 +1,18 @@
 package gloria
 
 import (
+	"bytes"
 	"context"
 	"net/http"
 )
 
 // Prepare builds an *http.Request from the current client state without sending it.
-// It applies method, URL (with query parameters), headers and cookies.
+// It applies method, URL (with query parameters), headers, cookies, and body.
 func (c *Client[T]) Prepare(ctx context.Context) (*http.Request, error) {
+	if c.err != nil {
+		return nil, c.err
+	}
+
 	finalURL := c.meta.URL
 	if q := c.buildQuery(); q != "" {
 		if hasQuery(finalURL) {
@@ -17,7 +22,12 @@ func (c *Client[T]) Prepare(ctx context.Context) (*http.Request, error) {
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, c.meta.Method, finalURL, nil)
+	var bodyReader *bytes.Reader
+	if len(c.body) > 0 {
+		bodyReader = bytes.NewReader(c.body)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, c.meta.Method, finalURL, bodyReader)
 	if err != nil {
 		return nil, err
 	}

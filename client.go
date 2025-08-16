@@ -7,15 +7,18 @@ import (
 
 // Client is the primary type for sending HTTP requests and decoding responses.
 type Client[T any] struct {
-	cfg  Config
+	cfg   Config
+	codec Codec
+
 	meta Meta
+	hdr  *header           // request headers
+	q    map[string]string // query parameters
+	body []byte            // payload
+
+	req *http.Request
+
 	data T
 	err  error
-
-	hdr *header           // request headers
-	q   map[string]string // query parameters
-
-	req *http.Request // last prepared request
 }
 
 // Config defines settings for the client.
@@ -38,9 +41,9 @@ func NewClient[T any](baseURL string, opts ...Option) *Client[T] {
 			BaseURL: baseURL,
 			Timeout: 30 * time.Second,
 		},
+		codec: stdJSONCodec{},
 		hdr: &header{
-			cookies: []*http.Cookie{},
-			extra:   make(map[string]string),
+			extra: make(map[string]string),
 		},
 		q: make(map[string]string),
 	}
