@@ -10,6 +10,9 @@ type Client[T any] struct {
 	meta Meta
 	data T
 	err  error
+
+	hdr map[string]string // request headers
+	q   map[string]string // query parameters
 }
 
 // Config defines settings for the client.
@@ -32,6 +35,8 @@ func NewClient[T any](baseURL string, opts ...Option) *Client[T] {
 			BaseURL: baseURL,
 			Timeout: 30 * time.Second,
 		},
+		hdr: make(map[string]string),
+		q:   make(map[string]string),
 	}
 	for _, opt := range opts {
 		opt(&c.cfg)
