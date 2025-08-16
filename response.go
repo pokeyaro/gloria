@@ -9,3 +9,8 @@ func (c *Client[T]) Raw() []byte {
 func (c *Client[T]) Status() int {
 	return c.meta.Status
 }
+
+// Data returns the last decoded data value.
+func (c *Client[T]) Data() T {
+	return c.data
+}
