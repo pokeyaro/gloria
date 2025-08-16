@@ -1,7 +1,18 @@
 package gloria
 
-// SetJSON marshals v with the current codec and sets it as the request body.
-// If Content-Type is not set, it is set to "application/json".
+// SetBody sets the raw request payload bytes.
+// It copies the input to avoid retaining external slices.
+func (c *Client[T]) SetBody(b []byte) *Client[T] {
+	if b == nil {
+		c.body = nil
+		return c
+	}
+	c.body = append(c.body[:0], b...)
+	return c
+}
+
+// SetJSON marshals v with the current Codec and sets it as the request body.
+// It also sets "Content-Type: application/json" if not already set.
 func (c *Client[T]) SetJSON(v any) *Client[T] {
 	if c.codec == nil {
 		c.codec = stdJSONCodec{}
@@ -12,6 +23,8 @@ func (c *Client[T]) SetJSON(v any) *Client[T] {
 		return c
 	}
 	c.body = bs
+
+	// ensure Content-Type
 	if c.hdr == nil {
 		c.hdr = &header{extra: make(map[string]string)}
 	}
@@ -21,9 +34,8 @@ func (c *Client[T]) SetJSON(v any) *Client[T] {
 	return c
 }
 
-// SetBody sets raw bytes as the request body.
-// The caller is responsible for setting an appropriate Content-Type.
-func (c *Client[T]) SetBody(b []byte) *Client[T] {
-	c.body = b
+// ResetBody clears the prepared request payload.
+func (c *Client[T]) ResetBody() *Client[T] {
+	c.body = nil
 	return c
 }
