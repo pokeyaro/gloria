@@ -25,6 +25,9 @@ type Client[T any] struct {
 	// prepared request
 	req *http.Request
 
+	// transport
+	httpc *http.Client // optional custom http.Client; if nil, SendCtx builds a default one
+
 	// result state
 	raw  []byte
 	data T
