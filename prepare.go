@@ -3,6 +3,7 @@ package gloria
 import (
 	"bytes"
 	"context"
+	"io"
 	"net/http"
 )
 
@@ -22,12 +23,15 @@ func (c *Client[T]) Prepare(ctx context.Context) (*http.Request, error) {
 		}
 	}
 
-	var bodyReader *bytes.Reader
+	// Use io.Reader interface to avoid passing a typed-nil concrete reader.
+	var body io.Reader
 	if len(c.body) > 0 {
-		bodyReader = bytes.NewReader(c.body)
+		body = bytes.NewReader(c.body)
+	} else {
+		body = nil
 	}
 
-	req, err := http.NewRequestWithContext(ctx, c.meta.Method, finalURL, bodyReader)
+	req, err := http.NewRequestWithContext(ctx, c.meta.Method, finalURL, body)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +54,9 @@ func (c *Client[T]) Prepare(ctx context.Context) (*http.Request, error) {
 			req.Header.Set(k, v)
 		}
 		for _, ck := range c.hdr.cookies {
-			req.AddCookie(ck)
+			if ck != nil {
+				req.AddCookie(ck)
+			}
 		}
 	}
 
