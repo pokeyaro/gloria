@@ -17,6 +17,7 @@ type Client[T any] struct {
 
 	req *http.Request
 
+	raw  []byte
 	data T
 	err  error
 }
@@ -27,11 +28,14 @@ type Config struct {
 	Timeout time.Duration
 }
 
-// Meta contains metadata about a request execution.
+// Meta records basic request/response metadata.
 type Meta struct {
-	Method   string
-	URL      string
-	Duration time.Duration
+	Method     string
+	URL        string
+	Status     int
+	Proto      string
+	Duration   time.Duration
+	ReceivedAt time.Time
 }
 
 // NewClient creates a new Client with default configuration.
