@@ -15,6 +15,9 @@ type Client[T any] struct {
 	q    map[string]string // query parameters
 	body []byte            // payload
 
+	pre  []BeforeHook[T] // registered before-send hooks
+	post []AfterHook[T]  // registered after-receive hooks
+
 	req *http.Request
 
 	raw  []byte

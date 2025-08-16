@@ -14,6 +14,14 @@ func (c *Client[T]) SendCtx(ctx context.Context) (*Client[T], error) {
 		return c, c.err
 	}
 
+	// Run before hooks.
+	for _, h := range c.pre {
+		if err := h(c); err != nil {
+			c.err = err
+			return c, err
+		}
+	}
+
 	// Ensure we have a request.
 	if c.req == nil {
 		if _, err := c.Prepare(ctx); err != nil {
@@ -48,6 +56,14 @@ func (c *Client[T]) SendCtx(ctx context.Context) (*Client[T], error) {
 
 	// Preserve raw response body for later decoding.
 	c.raw = bs
+
+	// Run after hooks.
+	for _, h := range c.post {
+		if err := h(c); err != nil {
+			c.err = err
+			return c, err
+		}
+	}
 
 	// Note: we do not treat non-2xx as an error here; the caller can decide.
 	return c, nil
