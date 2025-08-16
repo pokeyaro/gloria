@@ -68,3 +68,8 @@ func (c *Client[T]) SendCtx(ctx context.Context) (*Client[T], error) {
 	// Note: we do not treat non-2xx as an error here; the caller can decide.
 	return c, nil
 }
+
+// Send is a convenience wrapper over SendCtx with context.Background().
+func (c *Client[T]) Send() (*Client[T], error) {
+	return c.SendCtx(context.Background())
+}
