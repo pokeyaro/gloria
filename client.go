@@ -26,16 +26,20 @@ type Meta struct {
 }
 
 // NewClient creates a new Client with default configuration.
-func NewClient[T any](baseURL string) *Client[T] {
-	return &Client[T]{
+func NewClient[T any](baseURL string, opts ...Option) *Client[T] {
+	c := &Client[T]{
 		cfg: Config{
 			BaseURL: baseURL,
 			Timeout: 30 * time.Second,
 		},
 	}
+	for _, opt := range opts {
+		opt(&c.cfg)
+	}
+	return c
 }
 
 // New is an alias of NewClient.
-func New[T any](baseURL string) *Client[T] {
-	return NewClient[T](baseURL)
+func New[T any](baseURL string, opts ...Option) *Client[T] {
+	return NewClient[T](baseURL, opts...)
 }
