@@ -14,6 +14,8 @@ type Client[T any] struct {
 
 	hdr *header           // request headers
 	q   map[string]string // query parameters
+
+	req *http.Request // last prepared request
 }
 
 // Config defines settings for the client.
