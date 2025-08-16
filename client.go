@@ -1,6 +1,7 @@
 package gloria
 
 import (
+	"net/http"
 	"time"
 )
 
@@ -11,7 +12,7 @@ type Client[T any] struct {
 	data T
 	err  error
 
-	hdr map[string]string // request headers
+	hdr *header           // request headers
 	q   map[string]string // query parameters
 }
 
@@ -35,8 +36,11 @@ func NewClient[T any](baseURL string, opts ...Option) *Client[T] {
 			BaseURL: baseURL,
 			Timeout: 30 * time.Second,
 		},
-		hdr: make(map[string]string),
-		q:   make(map[string]string),
+		hdr: &header{
+			cookies: []*http.Cookie{},
+			extra:   make(map[string]string),
+		},
+		q: make(map[string]string),
 	}
 	for _, opt := range opts {
 		opt(&c.cfg)
