@@ -27,10 +27,14 @@ func WithTimeout(d time.Duration) Option {
 
 // WithREST toggles REST-style envelope decoding by default.
 func WithREST(enabled bool) Option {
-	return func(c *Config) { c.REST = enabled }
+	return func(c *Config) {
+		c.REST = enabled
+	}
 }
 
 // WithOkCode sets the business success code for REST mode (default 0).
 func WithOkCode(code int) Option {
-	return func(c *Config) { c.OkCode = code }
+	return func(c *Config) {
+		c.OkCode = code
+	}
 }
